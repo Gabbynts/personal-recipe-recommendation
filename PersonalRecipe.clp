@@ -13,8 +13,6 @@
    (slot main-course-preference)
    (slot dessert-preference)
    (slot difficulty-preference)
-   (slot vegan-preference)
-   (slot lactose-intolerance-preference)
 )
 
 ; Create Rules
@@ -34,10 +32,6 @@
     (bind ?dessert-pref (read))
     (printout t "How difficult should the recipe be? (Easy, Intermediate, Difficult) ")
     (bind ?difficulty-pref (read))
-    (printout t "Are you vegan? (yes/no) ")
-    (bind ?vegan-pref (read))
-    (printout t "Are you Lactose Intolerance")
-    (bind ?lactose-intolerance-pref (read))
     ; create new user fact
     (assert (User 
         (name ?name) 
@@ -45,11 +39,8 @@
         (main-course-preference  ?main-course-pref)
         (dessert-preference ?dessert-pref)
         (difficulty-preference ?difficulty-pref)
-        (vegan-preference ?vegan-pref)
-        (lactose-intolerance-preference ?lactose-intolerance-pref)
     ))
 )
-
 
 (defrule RecommendAppetizerRecipe
     (User 
@@ -58,8 +49,6 @@
         (main-course-preference  ?main-course-pref)
         (dessert-preference ?dessert-pref)
         (difficulty-preference ?difficulty-pref)
-        (vegan-preference ?vegan-pref)
-        (lactose-intolerance-preference ?lactose-intolerance-pref)
     )
     (Recipe 
         (name ?recipe)
@@ -68,68 +57,74 @@
         (ingredients ?ingredients)
         (instructions ?instructions)
     )
-    (test (eq ?cuisine ?cuisine-pref))
+    (test (eq ?appetizer-pref yes))
+    (test (eq Appetizer ?type))
     (test (eq ?difficulty ?difficulty-pref))
-    (test (str-compare ?ingredients ?ingredient-pref))
     =>
-    (printout t "Based on your preferences, we recommend: " ?recipe crlf)
+    (printout t "Based on your preferences, the appetizer we recommend: " ?recipe crlf)
     (printout t "Ingredients: " ?ingredients crlf)
+    (printout t "Instructions: " ?instructions crlf)
     (printout t "Enjoy your meal!" crlf)
     ;(retract (User (name ?name)))
     ;(retract (Recipe (name ?recipe)))
 )
 
-
-(defrule RecommendRecipe
+(defrule RecommendMainCourseRecipe
     (User 
-        (name ?name)
-        (cuisine-preference ?cuisine-pref)
+        (name ?name) 
+        (appetizer-preference ?appetizer-pref)
+        (main-course-preference  ?main-course-pref)
+        (dessert-preference ?dessert-pref)
         (difficulty-preference ?difficulty-pref)
-        (ingredient-preference ?ingredient-pref)
     )
     (Recipe 
         (name ?recipe)
-        (cuisine ?cuisine)
+        (type ?type)
         (difficulty ?difficulty)
         (ingredients ?ingredients)
+        (instructions ?instructions)
     )
-    (test (eq ?cuisine ?cuisine-pref))
+    (test (eq ?main-course-pref yes))
+    (test (eq MainCourse ?type))
     (test (eq ?difficulty ?difficulty-pref))
-    (test (str-compare ?ingredients ?ingredient-pref))
     =>
-    (printout t "Based on your preferences, we recommend: " ?recipe crlf)
+    (printout t "Based on your preferences, the main course we recommend: " ?recipe crlf)
     (printout t "Ingredients: " ?ingredients crlf)
+    (printout t "Instructions: " ?instructions crlf)
     (printout t "Enjoy your meal!" crlf)
     ;(retract (User (name ?name)))
     ;(retract (Recipe (name ?recipe)))
 )
 
 
-(defrule RecommendRecipe
+(defrule RecommendDessertRecipe
     (User 
-        (name ?name)
-        (cuisine-preference ?cuisine-pref)
+        (name ?name) 
+        (appetizer-preference ?appetizer-pref)
+        (main-course-preference  ?main-course-pref)
+        (dessert-preference ?dessert-pref)
         (difficulty-preference ?difficulty-pref)
-        (ingredient-preference ?ingredient-pref)
     )
     (Recipe 
         (name ?recipe)
-        (cuisine ?cuisine)
+        (type ?type)
         (difficulty ?difficulty)
         (ingredients ?ingredients)
+        (instructions ?instructions)
     )
-    (test (eq ?cuisine ?cuisine-pref))
+    (test (eq ?dessert-pref yes))
+    (test (eq Dessert ?type))
     (test (eq ?difficulty ?difficulty-pref))
-    (test (str-compare ?ingredients ?ingredient-pref))
     =>
-    (printout t "Based on your preferences, we recommend: " ?recipe crlf)
+    (printout t "Based on your preferences, the dessert we recommend: " ?recipe crlf)
     (printout t "Ingredients: " ?ingredients crlf)
+    (printout t "Instructions: " ?instructions crlf)
     (printout t "Enjoy your meal!" crlf)
     ;(retract (User (name ?name)))
     ;(retract (Recipe (name ?recipe)))
 )
 
-(defrule ExitRecommendation
+(defrule ExitRecommendations
    (User (name ?name))
    =>
    (printout t "Thank you for using the personalized recipe recommender, " ?name "!" crlf)
@@ -142,7 +137,7 @@
 (deffacts SampleRecipes
     (Recipe 
         (name "Spaghetti Carbonara") 
-        (cuisine Italian) 
+        (type MainCourse) 
         (difficulty Easy)
         (ingredients "spaghetti, eggs, bacon, Parmesan cheese") 
         (instructions "1. Cook spaghetti. 2. Fry bacon. 3. Mix eggs and cheese. 4. Toss with pasta.")
@@ -150,17 +145,57 @@
 
     (Recipe 
         (name "Chicken Tikka Masala") 
-        (cuisine Indian) 
+        (type MainCourse) 
         (difficulty Intermediate)
         (ingredients "chicken, yogurt, tomato sauce, spices") 
         (instructions "1. Marinate chicken. 2. Cook chicken. 3. Simmer in sauce.")
     )
 
     (Recipe 
+        (name "Tofu Tikka Masala") 
+        (type MainCourse) 
+        (difficulty Intermediate)
+        (ingredients "tofu, lettuce, tomato sauce, spices") 
+        (instructions "1. Marinate tofu. 2. Cook tofu. 3. Simmer in sauce.")
+    )
+
+    (Recipe 
         (name "Caesar Salad") 
-        (cuisine American) 
+        (type Appetizer) 
         (difficulty Easy)
         (ingredients "romaine lettuce, croutons, Caesar dressing") 
         (instructions "1. Toss lettuce with dressing. 2. Add croutons.")
+    )
+
+    (Recipe 
+        (name "Terang Bulan") 
+        (type Dessert) 
+        (difficulty Intermediate)
+        (ingredients "butter, pancake mix, chocolate") 
+        (instructions "1. Mix the pancake mix. 2. Cook the pancake mix in a pan. 3. Spread the butter 4. Spread the chocolate")
+    )
+
+    (Recipe 
+        (name "Lava Cake") 
+        (type Dessert) 
+        (difficulty Difficult)
+        (ingredients "cake mix, chocolate") 
+        (instructions "1. Mix the cake mix. 2. Put chocolate inside. 3. Bake the cake mix")
+    )
+
+    (Recipe 
+        (name "Indomie") 
+        (type Appetizer) 
+        (difficulty Easy)
+        (ingredients "indomie, eggs") 
+        (instructions "1. Boil water. 2.Put the noodle into the boiling water 3. Put the sauce in a bowl. 4. Drain the noodle")
+    )
+
+    (Recipe 
+        (name "Sosis Solo") 
+        (type Appetizer) 
+        (difficulty Hard)
+        (ingredients "bacon, mayonaisse") 
+        (instructions "1. Make the batter. 2. Cook the bacon. 3. Wrap the bacon and mayonaisse in the batter")
     )
 )
